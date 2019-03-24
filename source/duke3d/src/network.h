@@ -287,6 +287,9 @@ void    faketimerhandler(void);
 void Net_InitMapStateHistory();
 void Net_AddWorldToInitialSnapshot();
 
+void Net_RemovePlayerFromConnectPoint2(int32_t player);
+
+int32_t Net_GetPlayerIndexForNewPlayer();
 // Debugging
 int32_t Dbg_PacketSent(enum DukePacket_t iPacketType);
 
