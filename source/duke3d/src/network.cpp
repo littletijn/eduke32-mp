@@ -27,6 +27,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 /// PACKET_RECV_PRINT:  Print all received packets
 /// NETCODE_DISABLE:    Remove pretty much all of the game's interaction with the code in this file.
 
+#define PACKET_RECV_PRINT
+
 #include "duke3d.h"
 #include "game.h"
 #include "gamedef.h"
@@ -49,6 +51,7 @@ enet_uint16 g_netPort       = 23513;
 int32_t     g_netDisconnect = 0;
 char        g_netPassword[32];
 int32_t     g_networkMode       = NET_CLIENT;
+const char		*g_netServerAddress = NULL; //TIJN: Stores the address of the server
 
 // to support (gcc only) -f-strict-aliasing, the netcode needs to specify that its 32 bit chunks to and from the
 // packet code should not be subject to strict aliasing optimizations

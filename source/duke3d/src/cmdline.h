@@ -34,6 +34,7 @@ extern int32_t g_noSetup;
 extern int32_t g_noAutoLoad;
 extern int32_t g_noSound;
 extern int32_t g_noMusic;
+extern int32_t g_startAsClient;
 extern const char *CommandMap;
 extern const char *CommandName;
 extern int32_t g_forceWeaponChoice;

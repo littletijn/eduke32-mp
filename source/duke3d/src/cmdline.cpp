@@ -36,6 +36,7 @@ int32_t g_noSetup = 0;
 int32_t g_noAutoLoad = 0;
 int32_t g_noSound = 0;
 int32_t g_noMusic = 0;
+int32_t g_startAsClient = 0; //TIJN: Flag to check if game has been started with /connect
 const char *CommandMap = NULL;
 const char *CommandName = NULL;
 int32_t g_forceWeaponChoice = 0;
@@ -384,8 +385,9 @@ void G_CheckCommandLine(int32_t argc, char const * const * argv)
                 {
                     if (argc > i+1)
                     {
-                        Net_Connect(argv[i+1]);
-                        g_noSetup = g_noLogo = TRUE;
+						//TIJN: Copy the entered server address to variable
+						g_netServerAddress = argv[i + 1];
+                        g_noSetup = g_noLogo = g_startAsClient = TRUE;
                         i++;
                     }
                     i++;
