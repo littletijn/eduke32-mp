@@ -49,6 +49,7 @@ enet_uint16 g_netPort       = 23513;
 int32_t     g_netDisconnect = 0;
 char        g_netPassword[32];
 int32_t     g_networkMode       = NET_CLIENT;
+const char  *g_netServerAddress = NULL; //TIJN: Stores the address of the server
 
 // to support (gcc only) -f-strict-aliasing, the netcode needs to specify that its 32 bit chunks to and from the
 // packet code should not be subject to strict aliasing optimizations
@@ -1578,9 +1579,9 @@ static void Net_SyncPlayer(ENetEvent *event)
     S_PlaySound(DUKE_GETWEAPON2);
 
 
-	int32_t newPlayerIndex = Net_GetPlayerIndexForNewPlayer();
+    int32_t newPlayerIndex = Net_GetPlayerIndexForNewPlayer();
     connectpoint2[g_mostConcurrentPlayers - 1] = newPlayerIndex;
-	connectpoint2[g_mostConcurrentPlayers] = -1;
+    connectpoint2[g_mostConcurrentPlayers] = -1;
     g_mostConcurrentPlayers++;
    
     NET_75_CHECK++; // is it necessary to se event->peer->data to the new player index in Net_SyncPlayer?
@@ -2228,10 +2229,10 @@ static void Net_HandleClientPackets(void)
         case ENET_EVENT_TYPE_DISCONNECT:
             numplayers--;
             ud.multimode--;
-			g_mostConcurrentPlayers--; //LITTLETIJN
+            g_mostConcurrentPlayers--; //LITTLETIJN
 
             P_RemovePlayer(playeridx);
-			Net_RemovePlayerFromConnectPoint2(playeridx); //LITTLETIJN
+            Net_RemovePlayerFromConnectPoint2(playeridx); //LITTLETIJN
 
 
             g_player[playeridx].revision = cInitialMapStateRevisionNumber;
@@ -2483,7 +2484,7 @@ static void Net_ParseServerPacket(ENetEvent *event)
         ud.multimode = pbuf[3];
         g_mostConcurrentPlayers = pbuf[4];
 
-		Net_RemovePlayerFromConnectPoint2(pbuf[1]); //LITTLETIJN
+        Net_RemovePlayerFromConnectPoint2(pbuf[1]); //LITTLETIJN
 
         break;
 
@@ -5250,16 +5251,16 @@ void Net_NotifyNewGame()
 
 void Net_RemovePlayerFromConnectPoint2(int32_t player)
 {
-	int32_t i, j = 0;
-	for (i = 0; i < g_mostConcurrentPlayers; i++)
-	{
-		if (connectpoint2[i] == player)
-		{
-			for (j = i; j < g_mostConcurrentPlayers; j++)
-			{
-				connectpoint2[j] = connectpoint2[j + 1];
-			}
-			break;
-		}
-	}
+    int32_t i, j = 0;
+    for (i = 0; i < g_mostConcurrentPlayers; i++)
+    {
+        if (connectpoint2[i] == player)
+        {
+            for (j = i; j < g_mostConcurrentPlayers; j++)
+            {
+                connectpoint2[j] = connectpoint2[j + 1];
+            }
+            break;
+        }
+    }
 }

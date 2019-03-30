@@ -477,7 +477,7 @@ void G_DrawFrags(void)
     for (i=0; i<=(j>>2); i++)
         rotatesprite_fs(0, (8*i)<<16, 65600, 0, FRAGBAR, 0, 0, orient);
 
-	j = 0;
+    j = 0;
     for (TRAVERSE_CONNECT(i))
     {
         const DukePlayer_t *ps = g_player[i].ps;
