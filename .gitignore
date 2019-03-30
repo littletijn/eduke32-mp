@@ -1,3 +1,9 @@
+platform/Windows/Build
+platform/Windows/x64
+eduke32.exp
+eduke32.lib
+mapster32.exp
+mapster32.lib
 
 obj/
 
@@ -48,3 +54,4 @@ project.xcworkspace/
 *.dSYM/
 
 .DS_Store
+!platform/Windows/eduke32.vcxproj.user
