@@ -1566,8 +1566,6 @@ static void Net_SendPlayerIndex(int32_t index, ENetPeer *peer)
 // sync a connecting player up with the current game state
 static void Net_SyncPlayer(ENetEvent *event)
 {
-    int32_t newPlayerIndex, j;
-
     if (numplayers + g_netPlayersWaiting >= MAXPLAYERS)
     {
         enet_peer_disconnect_later(event->peer, DISC_SERVER_FULL);
@@ -1579,34 +1577,18 @@ static void Net_SyncPlayer(ENetEvent *event)
 
     S_PlaySound(DUKE_GETWEAPON2);
 
-    // open a new slot if necessary and save off the resulting slot # for future reference
-    for (TRAVERSE_CONNECT(newPlayerIndex))
-    {
-        if (g_player[newPlayerIndex].playerquitflag == 0)
-        {
-            break;
-        }
-    }
 
-    if (newPlayerIndex == -1)
-    {
-        newPlayerIndex = g_mostConcurrentPlayers++;
-    }
-
+	int32_t newPlayerIndex = Net_GetPlayerIndexForNewPlayer();
+    connectpoint2[g_mostConcurrentPlayers - 1] = newPlayerIndex;
+	connectpoint2[g_mostConcurrentPlayers] = -1;
+    g_mostConcurrentPlayers++;
+   
     NET_75_CHECK++; // is it necessary to se event->peer->data to the new player index in Net_SyncPlayer?
     event->peer->data = (void *)(intptr_t)newPlayerIndex;
 
     g_player[newPlayerIndex].netsynctime = totalclock;
     g_player[newPlayerIndex].playerquitflag = 1;
 
-    NET_75_CHECK++; // Need to think of something better when finding a remaining slot for players.
-
-    for (j = 0; j < g_mostConcurrentPlayers - 1; j++)
-    {
-        connectpoint2[j] = j + 1;
-    }
-
-    connectpoint2[g_mostConcurrentPlayers - 1] = -1;
 
     G_MaybeAllocPlayer(newPlayerIndex);
 
@@ -1620,6 +1602,18 @@ static void Net_SyncPlayer(ENetEvent *event)
     Net_SendNewGame(0, event->peer); // newly connecting player (Net_SyncPlayer)
 }
 
+int32_t Net_GetPlayerIndexForNewPlayer()
+{
+    // Loop all available players and find the first available index
+    // We bias this search to the lowest available player index
+	// Make a copy of the current list of players
+	int sortedConnectpoint2[MAXMULTIPLAYERS];
+    memcpy(sortedConnectpoint2, connectpoint2, MAXMULTIPLAYERS * sizeof(int));
+    // Sort the array from lowest to highest
+    std::sort(sortedConnectpoint2, sortedConnectpoint2 + MAXMULTIPLAYERS);
+	//Get the latest + 1
+    return sortedConnectpoint2[MAXMULTIPLAYERS - 1] + 1;
+}
 
 
 static void display_betascreen(void)
@@ -2234,8 +2228,11 @@ static void Net_HandleClientPackets(void)
         case ENET_EVENT_TYPE_DISCONNECT:
             numplayers--;
             ud.multimode--;
+			g_mostConcurrentPlayers--; //LITTLETIJN
 
             P_RemovePlayer(playeridx);
+			Net_RemovePlayerFromConnectPoint2(playeridx); //LITTLETIJN
+
 
             g_player[playeridx].revision = cInitialMapStateRevisionNumber;
 
@@ -2485,6 +2482,8 @@ static void Net_ParseServerPacket(ENetEvent *event)
         numplayers = pbuf[2];
         ud.multimode = pbuf[3];
         g_mostConcurrentPlayers = pbuf[4];
+
+		Net_RemovePlayerFromConnectPoint2(pbuf[1]); //LITTLETIJN
 
         break;
 
@@ -5248,3 +5247,19 @@ void Net_NotifyNewGame()
 #endif
 
 //-------------------------------------------------------------------------------------------------
+
+void Net_RemovePlayerFromConnectPoint2(int32_t player)
+{
+	int32_t i, j = 0;
+	for (i = 0; i < g_mostConcurrentPlayers; i++)
+	{
+		if (connectpoint2[i] == player)
+		{
+			for (j = i; j < g_mostConcurrentPlayers; j++)
+			{
+				connectpoint2[j] = connectpoint2[j + 1];
+			}
+			break;
+		}
+	}
+}

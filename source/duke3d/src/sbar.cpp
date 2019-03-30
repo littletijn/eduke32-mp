@@ -472,18 +472,19 @@ void G_DrawFrags(void)
     const int32_t orient = 2+8+16+64;
 
     for (TRAVERSE_CONNECT(i))
-        if (i > j)
-            j = i;
+        j++;
 
     for (i=0; i<=(j>>2); i++)
         rotatesprite_fs(0, (8*i)<<16, 65600, 0, FRAGBAR, 0, 0, orient);
 
+	j = 0;
     for (TRAVERSE_CONNECT(i))
     {
         const DukePlayer_t *ps = g_player[i].ps;
-        minitext(21+(73*(i&3)), 2+((i&28)<<1), g_player[i].user_name, ps->palookup, 2+8+16);
+        minitext(21+(73*(j&3)), 2+((j&28)<<1), g_player[i].user_name, ps->palookup, 2+8+16);
         Bsprintf(tempbuf, "%d", ps->frag-ps->fraggedself);
-        minitext(17+50+(73*(i&3)), 2+((i&28)<<1), tempbuf, ps->palookup, 2+8+16);
+        minitext(17+50+(73*(j&3)), 2+((j&28)<<1), tempbuf, ps->palookup, 2+8+16);
+        j++;
     }
 }
 

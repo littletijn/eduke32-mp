@@ -556,8 +556,7 @@ int fragbarheight(void)
         int j = 0;
 
         for (int TRAVERSE_CONNECT(i))
-            if (i > j)
-                j = i;
+            j++;
 
         return ((j + 3) >> 2) * tilesiz[FRAGBAR].y;
     }
