@@ -6351,17 +6351,6 @@ int app_main(int argc, char const * const * argv)
     if (g_scriptDebug)
         initprintf("CON debugging activated (level %d).\n",g_scriptDebug);
 
-#ifndef NETCODE_DISABLE
-    if (g_networkMode == NET_SERVER || g_networkMode == NET_DEDICATED_SERVER)
-    {
-        ENetAddress address = { ENET_HOST_ANY, g_netPort };
-        g_netServer = enet_host_create(&address, MAXPLAYERS, CHAN_MAX, 0, 0);
-
-        if (g_netServer == NULL)
-            initprintf("An error occurred while trying to create an ENet server host.\n");
-        else initprintf("Multiplayer server initialized\n");
-    }
-#endif
     numplayers = 1; //TIJN CHECK: Was already hard-coded to 1 here...
     g_mostConcurrentPlayers = ud.multimode;  // Lunatic needs this (player[] bound)
 
@@ -6598,6 +6587,19 @@ int app_main(int argc, char const * const * argv)
     S_ClearSoundLocks();
 
     //Start connection!
+#ifndef NETCODE_DISABLE
+    if (g_networkMode == NET_SERVER || g_networkMode == NET_DEDICATED_SERVER)
+    {
+        ENetAddress address = { ENET_HOST_ANY, g_netPort };
+        g_netServer         = enet_host_create(&address, MAXPLAYERS, CHAN_MAX, 0, 0);
+
+        if (g_netServer == NULL)
+            initprintf("An error occurred while trying to create an ENet server host.\n");
+        else
+            initprintf("Multiplayer server initialized\n");
+    }
+#endif
+
     if (g_networkMode == NET_CLIENT) {
         Net_Connect(g_netServerAddress);
     }
