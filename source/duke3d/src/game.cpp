@@ -6602,6 +6602,12 @@ int app_main(int argc, char const * const * argv)
 		Net_Connect(g_netServerAddress);
 	}
 
+	if (g_networkMode == NET_CLIENT) {
+		//TIJN: Guess we should do this after G_NewGame. We have loaded the map correctly when.
+		OSD_Printf("Waiting for initial snapshot...");
+		Net_WaitForInitialSnapshot();
+	}
+
 MAIN_LOOP_RESTART:
     totalclock = 0;
     ototalclock = 0;
@@ -6612,13 +6618,6 @@ MAIN_LOOP_RESTART:
         q = 0;
 
     Menu_Change(MENU_MAIN);
-
-    if(g_netClient)
-    {
-		//TIJN: Guess we should do this after G_NewGame. We have loaded the map correctly when.
-        OSD_Printf("Waiting for initial snapshot...");
-        Net_WaitForInitialSnapshot();
-    }
 
     if (g_networkMode != NET_DEDICATED_SERVER)
     {
@@ -6648,7 +6647,7 @@ MAIN_LOOP_RESTART:
 
             G_NewGame_EnterLevel();
 
-            Net_WaitForServer();
+            //Net_WaitForServer(); //TIJN: Not required anymore?
         }
         else if (g_networkMode != NET_DEDICATED_SERVER)
             G_DisplayLogo();
